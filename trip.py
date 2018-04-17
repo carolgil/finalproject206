@@ -9,64 +9,66 @@ import plotly.graph_objs as go
 # create trip.db database
 # contains 2 tables: Activities and ActivityInfo
 DBNAME = 'trip.db'
-
-# init db
 conn = sqlite3.connect(DBNAME)
 cur = conn.cursor()
 
-# Drop tables
-statement1 = '''
-    DROP TABLE IF EXISTS 'Activities';
-'''
+# init db
+def drop_db():
 
-statement2 = '''
-    DROP TABLE IF EXISTS 'ActivityInfo';
-'''
+    # Drop tables
+    statement1 = '''
+        DROP TABLE IF EXISTS 'Activities';
+    '''
 
-statement3 = '''
-    DROP TABLE IF EXISTS 'States'
-'''
+    statement2 = '''
+        DROP TABLE IF EXISTS 'ActivityInfo';
+    '''
 
-cur.execute(statement1)
-cur.execute(statement2)
-cur.execute(statement3)
+    statement3 = '''
+        DROP TABLE IF EXISTS 'States'
+    '''
 
-conn.commit()
+    cur.execute(statement1)
+    cur.execute(statement2)
+    cur.execute(statement3)
 
-query1 = '''
-    CREATE TABLE 'Activities' (
+    conn.commit()
+
+def create_tables():
+    query1 = '''
+        CREATE TABLE 'Activities' (
+            'Id' INTEGER PRIMARY KEY AUTOINCREMENT,
+            'State' INTEGER,
+            'Attraction' TEXT,
+            'Location' TEXT,
+            'URL' TEXT
+        );
+    '''
+
+    query2 = '''
+        CREATE TABLE 'ActivityInfo' (
         'Id' INTEGER PRIMARY KEY AUTOINCREMENT,
-        'State' INTEGER,
-        'Attraction' TEXT,
-        'Location' TEXT,
-        'URL' TEXT
-    );
-'''
+        'Title' TEXT,
+        'Type' TEXT,
+        'Rating' INTEGER,
+        'NumReviews' INTEGER
+        );
+    '''
 
-query2 = '''
-    CREATE TABLE 'ActivityInfo' (
-    'Id' INTEGER PRIMARY KEY AUTOINCREMENT,
-    'Title' TEXT,
-    'Type' TEXT,
-    'Rating' INTEGER,
-    'NumReviews' INTEGER
-    );
-'''
-
-query3 = '''
-    CREATE TABLE 'States' (
-    'Id' INTEGER PRIMARY KEY AUTOINCREMENT,
-    'StateName' TEXT
-    );
-'''
+    query3 = '''
+        CREATE TABLE 'States' (
+        'Id' INTEGER PRIMARY KEY AUTOINCREMENT,
+        'StateName' TEXT
+        );
+    '''
 
 
-cur.execute(query1)
-cur.execute(query2)
-cur.execute(query3)
+    cur.execute(query1)
+    cur.execute(query2)
+    cur.execute(query3)
 
-conn.commit()
-conn.close()
+    conn.commit()
+    conn.close()
 
 # Cache STATE ACTIVITIES
 # on startup, try to load the cache from file
@@ -279,12 +281,10 @@ class Activity:
         self.num_reviews = num_reviews
 
 
-conn = sqlite3.connect(DBNAME)
-cur = conn.cursor()
-
-
 
 def init_db():
+    conn = sqlite3.connect(DBNAME)
+    cur = conn.cursor()
     for state in state_code_dict:
         baseurl = 'https://www.tripadvisor.com/Attractions-'
         state_code = state_code_dict[state]
@@ -347,7 +347,12 @@ def init_db():
 
 
 if __name__ == "__main__":
+    # drop_db()
+    # create_tables()
     # init_db()
+
+    conn = sqlite3.connect(DBNAME)
+    cur = conn.cursor()
 
     entered = input('Enter command (or "help" for options): ')
     entered = entered.split()
@@ -358,16 +363,72 @@ if __name__ == "__main__":
             print("Bye!")
 
         # FIRST GRAPH
-        # creates bar chart of activity rankings in state specified
+        # Creates chart showing how many activities rank #1, #2, and #3
         elif command == "rankings":
-
+            nums = []
+            for x in range(1,4):
+                statement = '''
+                SELECT Count(*)
+                FROM ActivityInfo
+                WHERE Rating ='''
+                statement += str(x)
+                cur.execute(statement)
+                for row in cur:
+                    nums.append(row[0])
 
             data = [go.Bar(
-            x=['giraffes', 'orangutans', 'monkeys'],
-            y=[20, 14, 23]
+                x=['1', '2', '3'],
+                y= nums,
             )]
 
-            py.plot(data, filename='basic-bar')
+            layout = go.Layout(
+                title='Activities Sorted By Ranking',
+            )
+
+            fig = go.Figure(data=data, layout=layout)
+            py.plot(fig, filename='basic-bar')
+
+        # GRAPH 2
+        # Number of Activity Reviews on Trip Advisor for the Top Three Activities per State
+        elif command== "reviews":
+            x = []
+            y = []
+            statement = '''
+            SELECT StateName, NumReviews
+            FROM ActivityInfo
+            JOIN Activities
+            ON Title = Attraction
+            JOIN States
+            ON State = States.Id
+            GROUP BY StateName
+            '''
+            cur.execute(statement)
+            for row in cur:
+                x.append(row[0])
+                y.append(row[1])
+
+            data = [go.Bar(
+                x=x,
+                y=y
+            )]
+
+            layout = go.Layout(
+                title='Sum of Trip Advisor Reviews for the Top Three Activities per State',
+            )
+
+            fig = go.Figure(data=data, layout=layout)
+            py.plot(fig, filename='basic-bar')
+
+        # GRAPH 3
+        elif command == "":
+            pass
+
+        # GRAPH 4
+        elif command == "":
+            pass
+
+        elif command == "help":
+            print("To view a graph type rankings, reviews, or !")
 
         else:
             print("Bad input :( try again!")
