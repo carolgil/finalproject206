@@ -51,7 +51,7 @@ def create_tables():
         'Title' TEXT,
         'Type' TEXT,
         'Rating' INTEGER,
-        'NumReviews' INTEGER
+        'NumReviews' TEXT
         );
     '''
 
