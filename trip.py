@@ -373,7 +373,7 @@ if __name__ == "__main__":
         if command == "exit" :
             print("Bye!")
 
-        # FIRST GRAPH
+        # GRAPH 1
         # Creates chart showing how many activities rank #1, #2, and #3
         elif command == "rankings":
             nums = []
@@ -455,7 +455,7 @@ if __name__ == "__main__":
 
         # GRAPH 4
         # provides a table of the top 3 activities to do in the state
-        # user inputs "activities" followed by state capitalized
+        # user inputs "activities" followed by a state capitalized
         # ex: activities Michigan
         # ex: activities New York
         elif command == "activities":
