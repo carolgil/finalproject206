@@ -3,6 +3,8 @@ from bs4 import BeautifulSoup
 import sys
 import sqlite3
 import json
+import plotly.plotly as py
+import plotly.graph_objs as go
 
 # create trip.db database
 # contains 2 tables: Activities and ActivityInfo
@@ -21,15 +23,20 @@ statement2 = '''
     DROP TABLE IF EXISTS 'ActivityInfo';
 '''
 
+statement3 = '''
+    DROP TABLE IF EXISTS 'States'
+'''
+
 cur.execute(statement1)
 cur.execute(statement2)
+cur.execute(statement3)
 
 conn.commit()
 
 query1 = '''
     CREATE TABLE 'Activities' (
         'Id' INTEGER PRIMARY KEY AUTOINCREMENT,
-        'State' TEXT,
+        'State' INTEGER,
         'Attraction' TEXT,
         'Location' TEXT,
         'URL' TEXT
@@ -46,9 +53,17 @@ query2 = '''
     );
 '''
 
+query3 = '''
+    CREATE TABLE 'States' (
+    'Id' INTEGER PRIMARY KEY AUTOINCREMENT,
+    'StateName' TEXT
+    );
+'''
+
 
 cur.execute(query1)
 cur.execute(query2)
+cur.execute(query3)
 
 conn.commit()
 conn.close()
@@ -192,6 +207,59 @@ state_code_dict = {
     'Wyoming' : 'g28973'
 }
 
+state_to_num = {
+    'Alabama': 1,
+    'Alaska' : 2,
+    'Arizona' : 3,
+    'Arkansas' : 4,
+    'California' : 5,
+    'Colorado' : 6,
+    'Connecticut' : 7,
+    'Delaware' : 8,
+    'Florida' : 9,
+    'Georgia' : 10,
+    'Hawaii' : 11,
+    'Idaho' : 12,
+    'Illinois' : 13,
+    'Indiana' : 14,
+    'Iowa' : 15,
+    'Kansas' : 16,
+    'Kentucky' : 17,
+    'Louisiana' : 18,
+    'Maine' : 19,
+    'Maryland' : 20,
+    'Massachusetts' : 21,
+    'Michigan' : 22,
+    'Minnesota' : 23,
+    'Mississippi' : 24,
+    'Missouri' : 25,
+    'Montana' : 26,
+    'Nebraska' : 27,
+    'Nevada' : 28,
+    'New_Hampshire' : 29,
+    'New_Jersey' : 30,
+    'New_Mexico' : 31,
+    'New_York' : 32,
+    'North_Carolina' : 33,
+    'North_Dakota' : 34,
+    'Ohio' : 35,
+    'Oklahoma' : 36,
+    'Oregon' : 37,
+    'Pennsylvania' : 38,
+    'Rhode_Island' : 39,
+    'South_Carolina' : 40,
+    'South_Dakota' : 41,
+    'Tennessee' : 42,
+    'Texas' : 43,
+    'Utah' : 44,
+    'Vermont' : 45,
+    'Virginia' : 46,
+    'Washington' : 47,
+    'West_Virginia' : 48,
+    'Wisconsin' : 49,
+    'Wyoming' : 50
+}
+
 class State:
     def __init__(self, name, attraction, location, url=None):
         self.name = name
@@ -236,7 +304,7 @@ def init_db():
                     l = t.find('span').text
                 else:
                     l = "None"
-                insertion = (None, state, a, l, url)
+                insertion = (None, state_to_num[state], a, l, url)
                 statement = 'INSERT INTO "Activities" '
                 statement += 'VALUES (?, ?, ?, ?, ?)'
                 cur.execute(statement, insertion)
@@ -266,6 +334,13 @@ def init_db():
                 cur.execute(statement, insert)
             else:
                 break
+
+    for s in state_code_dict:
+        statement = 'INSERT INTO "States" '
+        statement += 'VALUES (?, ?)'
+        insert = (None, s)
+        cur.execute(statement, insert)
+
     conn.commit()
 
 
@@ -284,7 +359,13 @@ if __name__ == "__main__":
         # FIRST GRAPH
         # creates bar chart of activity rankings in state specified
         elif command == "rankings":
-            pass
+
+            data = [go.Bar(
+            x=['giraffes', 'orangutans', 'monkeys'],
+            y=[20, 14, 23]
+            )]
+
+            py.iplot(data, filename='basic-bar')
 
         else:
             print("Bad input :( try again!")
