@@ -1,6 +1,22 @@
 import unittest
 from trip import *
 
+class TestAccess(unittest.TestCase):
+    def test_cache1(self):
+        baseurl = 'https://www.tripadvisor.com/Attractions-'
+        page_text = make_request_using_cache(baseurl, 'g28926')
+        soup = BeautifulSoup(page_text, 'html.parser')
+        todo = soup.find(class_='listing_title')
+        self.assertEqual(todo.find('a').text, 'USS Midway Museum')
+
+    def test_cache2(self):
+        url = 'https://www.tripadvisor.com/Attraction_Review-g42497-d134013-'
+        url += 'Reviews-Pictured_Rocks_National_Lakeshore-Munising_Upper_Peninsula_Michigan.html'
+        text = make_request_using_cache2(url)
+        ramen = BeautifulSoup(text, 'html.parser')
+        detail = ramen.find(class_='detail')
+        self.assertEqual(detail.find('a').text, 'National Parks')
+
 class TestDatabase(unittest.TestCase):
     def test_activities_table(self):
         conn = sqlite3.connect(DBNAME)
