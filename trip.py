@@ -455,6 +455,9 @@ if __name__ == "__main__":
 
         # GRAPH 4
         # provides a table of the top 3 activities to do in the state
+        # user inputs "activities" followed by state capitalized
+        # ex: activities Michigan
+        # ex: activities New York
         elif command == "activities":
                 states = []
                 todo = []
