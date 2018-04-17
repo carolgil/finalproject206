@@ -262,24 +262,6 @@ state_to_num = {
     'Wyoming' : 50
 }
 
-class State:
-    def __init__(self, name, attraction, location, url=None):
-        self.name = name
-        self.attraction = attraction
-        self.location = location
-        self.url = url
-
-    def __str__(self):
-        str_ = self.name + ": " + self.attraction + " in " + self.location
-        return str_
-
-class Activity:
-    def __init__(self, title, type, rating, num_reviews):
-        self.title = title
-        self.type = type
-        self.rating = rating
-        self.num_reviews = num_reviews
-
 
 
 def init_db():
@@ -344,6 +326,35 @@ def init_db():
 
     conn.commit()
 
+class State:
+    def __init__(self, name, attraction, location, url=None):
+        self.name = name
+        self.attraction = attraction
+        self.location = location
+        self.url = url
+
+    def __str__(self):
+        str_ = self.attraction + " in " + self.location
+        return str_
+
+def get_activities(state) :
+    activities = []
+    query = '''
+    SELECT StateName, Attraction, Location, URL
+    FROM Activities
+    JOIN ActivityInfo
+    ON Title = Attraction
+    JOIN States
+    ON State = States.Id
+    WHERE StateName = '''
+    query += "'" + state + "'"
+    cur.execute(query)
+    for row in cur:
+        place = State(row[0], row[1], row[2], row[3])
+        activities.append(place)
+
+    return activities
+
 
 
 if __name__ == "__main__":
@@ -390,7 +401,7 @@ if __name__ == "__main__":
 
         # GRAPH 2
         # Number of Activity Reviews on Trip Advisor for the Top Three Activities per State
-        elif command== "reviews":
+        elif command == "reviews":
             x = []
             y = []
             statement = '''
@@ -420,6 +431,7 @@ if __name__ == "__main__":
             py.plot(fig, filename='basic-scatter')
 
         # GRAPH 3
+        # pie chart that sorts all activities by type
         elif command == "type":
             x= []
             y= []
@@ -442,8 +454,29 @@ if __name__ == "__main__":
             py.plot([trace], filename='basic_pie_chart')
 
         # GRAPH 4
-        elif command == "":
-            pass
+        # provides a table of the top 3 activities to do in the state
+        elif command == "activities":
+                states = []
+                todo = []
+                if len(entered) < 3:
+                    states.append(entered[1])
+                    all_activities = get_activities(entered[1])
+                    for a in all_activities:
+                        todo.append(str(a))
+                else:
+                    state = entered[1] + " " + entered[2]
+                    all_activities = get_activities(state)
+                    states.append(state)
+                    for a in all_activities:
+                        todo.append(str(a))
+
+                trace = go.Table(
+                type = 'table',
+                header=dict(values=states),
+                cells=dict(values=[todo]))
+
+                data = [trace]
+                py.plot(data, filename = 'styled_table')
 
         elif command == "help":
             print("To view a graph type rankings, reviews, type or !")
