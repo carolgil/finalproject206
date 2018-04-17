@@ -459,30 +459,34 @@ if __name__ == "__main__":
         # ex: activities Michigan
         # ex: activities New York
         elif command == "activities":
-                states = []
-                todo = []
-                if len(entered) < 3:
-                    states.append(entered[1])
-                    all_activities = get_activities(entered[1])
-                    for a in all_activities:
-                        todo.append(str(a))
-                else:
-                    state = entered[1] + " " + entered[2]
-                    all_activities = get_activities(state)
-                    states.append(state)
-                    for a in all_activities:
-                        todo.append(str(a))
+            states = []
+            todo = []
+            if len(entered) < 3:
+                states.append(entered[1])
+                all_activities = get_activities(entered[1])
+                for a in all_activities:
+                    todo.append(str(a))
+            else:
+                state = entered[1] + " " + entered[2]
+                all_activities = get_activities(state)
+                states.append(state)
+                for a in all_activities:
+                    todo.append(str(a))
 
-                trace = go.Table(
-                type = 'table',
-                header=dict(values=states),
-                cells=dict(values=[todo]))
+            trace = go.Table(
+            type = 'table',
+            header=dict(values=states),
+            cells=dict(values=[todo]))
 
-                data = [trace]
-                py.plot(data, filename = 'styled_table')
+            data = [trace]
+            py.plot(data, filename = 'styled_table')
 
         elif command == "help":
-            print("To view a graph type rankings, reviews, type or !")
+            help = '''1) "rankings" - generates bar chart showing how many activities rank #1, #2, and #3\n'''
+            help += '''2) "reviews" - creates scatter plot depicting the sum of every states top three activity reviews\n'''
+            help+= '''3) "type" - makes a pie chart sorting all activities by type\n'''
+            help+= '''4) "activities [State]" - a user inputs "activities" followed by a state capitalized (i.e. "activities Michigan" or "activities New York") and the program produces a table of the top three activities to do in the state specified'''
+            print(help)
 
         else:
             print("Bad input :( try again!")
