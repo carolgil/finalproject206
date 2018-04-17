@@ -236,26 +236,26 @@ state_to_num = {
     'Montana' : 26,
     'Nebraska' : 27,
     'Nevada' : 28,
-    'New_Hampshire' : 29,
-    'New_Jersey' : 30,
-    'New_Mexico' : 31,
-    'New_York' : 32,
-    'North_Carolina' : 33,
-    'North_Dakota' : 34,
+    'New Hampshire' : 29,
+    'New Jersey' : 30,
+    'New Mexico' : 31,
+    'New York' : 32,
+    'North Carolina' : 33,
+    'North Dakota' : 34,
     'Ohio' : 35,
     'Oklahoma' : 36,
     'Oregon' : 37,
     'Pennsylvania' : 38,
-    'Rhode_Island' : 39,
-    'South_Carolina' : 40,
-    'South_Dakota' : 41,
+    'Rhode Island' : 39,
+    'South Carolina' : 40,
+    'South Dakota' : 41,
     'Tennessee' : 42,
     'Texas' : 43,
     'Utah' : 44,
     'Vermont' : 45,
     'Virginia' : 46,
     'Washington' : 47,
-    'West_Virginia' : 48,
+    'West Virginia' : 48,
     'Wisconsin' : 49,
     'Wyoming' : 50
 }
@@ -304,7 +304,8 @@ def init_db():
                     l = t.find('span').text
                 else:
                     l = "None"
-                insertion = (None, state_to_num[state], a, l, url)
+                loc = state.replace("_", " ")
+                insertion = (None, state_to_num[loc], a, l, url)
                 statement = 'INSERT INTO "Activities" '
                 statement += 'VALUES (?, ?, ?, ?, ?)'
                 cur.execute(statement, insertion)
@@ -335,7 +336,7 @@ def init_db():
             else:
                 break
 
-    for s in state_code_dict:
+    for s in state_to_num:
         statement = 'INSERT INTO "States" '
         statement += 'VALUES (?, ?)'
         insert = (None, s)
@@ -360,12 +361,13 @@ if __name__ == "__main__":
         # creates bar chart of activity rankings in state specified
         elif command == "rankings":
 
+
             data = [go.Bar(
             x=['giraffes', 'orangutans', 'monkeys'],
             y=[20, 14, 23]
             )]
 
-            py.iplot(data, filename='basic-bar')
+            py.plot(data, filename='basic-bar')
 
         else:
             print("Bad input :( try again!")
