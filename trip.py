@@ -407,7 +407,7 @@ if __name__ == "__main__":
                 x.append(row[0])
                 y.append(row[1])
 
-            data = [go.Bar(
+            data = [go.Scatter(
                 x=x,
                 y=y
             )]
@@ -417,18 +417,36 @@ if __name__ == "__main__":
             )
 
             fig = go.Figure(data=data, layout=layout)
-            py.plot(fig, filename='basic-bar')
+            py.plot(fig, filename='basic-scatter')
 
         # GRAPH 3
-        elif command == "":
-            pass
+        elif command == "type":
+            x= []
+            y= []
+            statement = '''
+            SELECT Type, COUNT(*)
+            FROM ActivityInfo
+            GROUP BY Type
+            ORDER BY COUNT(*) DESC
+            '''
+            cur.execute(statement)
+            for row in cur:
+                x.append(row[0])
+                y.append(row[1])
+
+            labels = x
+            values = y
+
+            trace = go.Pie(labels=labels, values=values)
+
+            py.plot([trace], filename='basic_pie_chart')
 
         # GRAPH 4
         elif command == "":
             pass
 
         elif command == "help":
-            print("To view a graph type rankings, reviews, or !")
+            print("To view a graph type rankings, reviews, type or !")
 
         else:
             print("Bad input :( try again!")
